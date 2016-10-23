@@ -87,7 +87,7 @@ namespace TagsCloudVisualization
             var circleRadius = rectangles.Select(rect => rect.MaxDistance(center)).Max();
             var circleArea = Math.PI * circleRadius * circleRadius;
             var rectanglesArea = sizes.Sum(s => s.Height * s.Width);
-            (rectanglesArea / circleArea * 100).Should().BeGreaterOrEqualTo(100);
+            (rectanglesArea / circleArea * 100).Should().BeGreaterOrEqualTo(70);
         }
 
 
