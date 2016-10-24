@@ -11,6 +11,11 @@ namespace TagsCloudVisualization
 
         static void Main(string[] args)
         {
+            if (args.Length < 2)
+            {
+                PrintHelp();
+                return;
+            }
             var words = File.ReadAllLines(args[0]);
             var visualizer = new CloudVizualizer(Width, Height);
             var random = new Random();
@@ -19,6 +24,13 @@ namespace TagsCloudVisualization
                 visualizer.AddWord(word, random.Next(14, 28), Color.Green);
             }
             visualizer.Save(args[1]);
+        }
+
+        static void PrintHelp()
+        {
+            Console.WriteLine("Usage: TagsCloudVisualisation.exe tags_file image_file");
+            Console.WriteLine("tags_file: text file, every tag on new line");
+            Console.WriteLine("image_file: output image file (BMP)");
         }
     }
 }
