@@ -44,7 +44,7 @@ namespace TagsCloudVisualization
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Vector) obj);
         }
 
@@ -108,7 +108,7 @@ namespace TagsCloudVisualization
 
         public double GetAngle(Vector vector)
         {
-            return Math.Abs(this.Angle - vector.Angle);
+            return Math.Abs(Angle - vector.Angle);
         }
     }
 }

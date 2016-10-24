@@ -11,14 +11,14 @@ namespace TagsCloudVisualization
 
         static void Main(string[] args)
         {
-            var words = File.ReadAllLines("tags.txt");
+            var words = File.ReadAllLines(args[0]);
             var visualizer = new CloudVizualizer(Width, Height);
             var random = new Random();
             foreach (var word in words)
             {
                 visualizer.AddWord(word, random.Next(14, 28), Color.Green);
             }
-            visualizer.Save("image.bmp");
+            visualizer.Save(args[1]);
         }
     }
 }
