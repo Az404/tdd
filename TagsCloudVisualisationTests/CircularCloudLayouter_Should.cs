@@ -6,6 +6,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using TagsCloudVisualization;
+using TagsCloudVisualization.Geometry;
 
 namespace TagsCloudVisualisationTests
 {
@@ -14,7 +15,6 @@ namespace TagsCloudVisualisationTests
     {
         private CircularCloudLayouter layouter;
         private Point center;
-        private List<Rectangle> rectangles;
 
         [SetUp]
         public void SetUp()
@@ -37,6 +37,73 @@ namespace TagsCloudVisualisationTests
             result.Should().Be(new Rectangle(new Point(-5, -5), new Size(10, 10)));
         }
 
+        [Test]
+        public void PutRectangles_WithNoIntersections()
+        {
+            var rectangles = PutRectangles(new Size(5, 10), new Size(5, 15), new Size(10, 5));
+            AssertNoIntersections(rectangles);
+        }
+
+        [TestCase(20, 3)]
+        [TestCase(100, 10)]
+        [TestCase(200, 25)]
+        public void PutRectangles_InCircularCloud(int totalCount, int testingCount)
+        {
+            var sizes = Enumerable.Repeat(new Size(5, 10), totalCount).ToArray();
+            var rectangles = PutRectangles(sizes);
+            var lastRectangles = rectangles.Skip(totalCount - testingCount).ToArray();
+
+            var sampleRadius = lastRectangles.Last().MaxDistance(center);
+            var dRadius = lastRectangles.Max(rect => Math.Abs(sampleRadius - rect.MaxDistance(center)));
+            (dRadius / sampleRadius * 100).Should().BeLessThan(10);
+        }
+
+        
+        [TestCase(50)]
+        [TestCase(100)]
+        [TestCase(200)]
+        public void PutRectangles_InDenseCloud(int count)
+        {
+            var sizes = Enumerable.Repeat(new Size(5, 10), count).ToArray();
+            var rectangles = PutRectangles(sizes);
+
+            var circleRadius = rectangles.Select(rect => rect.MaxDistance(center)).Max();
+            var circleArea = Math.PI * circleRadius * circleRadius;
+            var rectanglesArea = sizes.Sum(s => s.Height * s.Width);
+            (rectanglesArea / circleArea * 100).Should().BeGreaterOrEqualTo(60);
+        }
+
+        [Test]
+        public void PutRectangles_InNonDefaultCenter()
+        {
+            center = new Point(50, 70);
+            layouter = new CircularCloudLayouter(center);
+            var sizes = new[] {new Size(5, 10), new Size(15, 5), new Size(1, 3)};
+            var rectangles = PutRectangles(sizes);
+
+            var distance = rectangles.Max(rect => rect.GetCenter().DistanceTo(center));
+            var maxPossibleDistance = sizes.Select(size => size.Width + size.Height).Sum();
+            distance.Should().BeLessOrEqualTo(maxPossibleDistance);
+        }
+
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (TestContext.CurrentContext.Result.Outcome.Status == TestStatus.Failed)
+            {
+                var filename =
+                    $"{TestContext.CurrentContext.TestDirectory}\\{TestContext.CurrentContext.Test.FullName}.png";
+                var rectangles = layouter.Rectangles.ToArray();
+                using (var visualizer = new CloudVizualizer(rectangles))
+                {
+                    visualizer.DrawRectangles(rectangles, Color.Red);
+                    visualizer.Save(filename);
+                }
+                TestContext.WriteLine($"Tag cloud visualization saved to file {filename}");
+            }
+        }
+
         private void AssertNoIntersections(List<Rectangle> rectangles)
         {
             for (int i = 0; i < rectangles.Count - 1; i++)
@@ -52,63 +119,6 @@ namespace TagsCloudVisualisationTests
         private List<Rectangle> PutRectangles(params Size[] rectangleSizes)
         {
             return rectangleSizes.Select(size => layouter.PutNextRectangle(size)).ToList();
-        }
-
-        [Test]
-        public void PutRectangles_WithNoIntersections()
-        {
-            rectangles = PutRectangles(new Size(5, 10), new Size(5, 15), new Size(10, 5));
-            AssertNoIntersections(rectangles);
-        }
-
-        [TestCase(20, 3)]
-        [TestCase(100, 10)]
-        [TestCase(200, 25)]
-        public void PutRectangles_InCircularCloud(int totalCount, int testingCount)
-        {
-            var sizes = Enumerable.Repeat(new Size(5, 10), totalCount).ToArray();
-            rectangles = PutRectangles(sizes);
-            var lastRectangles = rectangles.Skip(totalCount - testingCount).ToArray();
-
-            var sampleRadius = lastRectangles.Last().MaxDistance(center);
-            var dRadius = lastRectangles.Max(rect => Math.Abs(sampleRadius - rect.MaxDistance(center)));
-            (dRadius / sampleRadius * 100).Should().BeLessThan(10);
-        }
-
-
-        [Test]
-        public void PutRectangles_InDenseCloud()
-        {
-            var sizes = Enumerable.Repeat(new Size(5, 10), 100).ToArray();
-            rectangles = PutRectangles(sizes);
-
-            var circleRadius = rectangles.Select(rect => rect.MaxDistance(center)).Max();
-            var circleArea = Math.PI * circleRadius * circleRadius;
-            var rectanglesArea = sizes.Sum(s => s.Height * s.Width);
-            (rectanglesArea / circleArea * 100).Should().BeGreaterOrEqualTo(70);
-        }
-
-
-        [TearDown]
-        public void TearDown()
-        {
-            if (Equals(TestContext.CurrentContext.Result.Outcome, ResultState.Failure))
-            {
-                const int imageSize = 1024;
-                var bitmap = new Bitmap(imageSize, imageSize);
-                using (var graphics = Graphics.FromImage(bitmap))
-                {
-                    foreach (var rect in rectangles)
-                    {
-                        var shiftedRect = new Rectangle(rect.Location + new Size(imageSize / 2, imageSize / 2), rect.Size);
-                        graphics.DrawRectangle(Pens.Red, shiftedRect);
-                    }
-                }
-                var filename =
-                    $"{TestContext.CurrentContext.TestDirectory}\\{TestContext.CurrentContext.Test.FullName}.bmp";
-                bitmap.Save(filename);
-                TestContext.WriteLine($"Tag cloud visualization saved to file {filename}");
-            }
         }
 
     }

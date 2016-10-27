@@ -1,16 +1,8 @@
 ﻿using System;
 using System.Drawing;
 
-namespace TagsCloudVisualization
+namespace TagsCloudVisualization.Geometry
 {
-    public static class Geometry
-    {
-        public static double Distance(Point a, Point b)
-        {
-            return (new Vector(a) - new Vector(b)).Length;
-        }
-    }
-    
     public class Vector
     {
         public Vector(double x, double y)
@@ -19,14 +11,12 @@ namespace TagsCloudVisualization
             Y = y;
         }
 
-        public Vector(Point p) : this(p.X, p.Y) {}
+        public Vector(Point p) : this(p.X, p.Y) { }
 
         public readonly double X;
         public readonly double Y;
 
         public double Length => Math.Sqrt(X * X + Y * Y);
-
-        public double Angle => Math.Atan2(Y, X);
 
         public static Vector Zero = new Vector(0, 0);
 
@@ -45,7 +35,7 @@ namespace TagsCloudVisualization
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((Vector) obj);
+            return Equals((Vector)obj);
         }
 
         public override int GetHashCode()
@@ -71,29 +61,9 @@ namespace TagsCloudVisualization
             return a * k;
         }
 
-        public static double operator *(Vector a, Vector b)
-        {
-            return a.X * b.X + a.Y * b.Y;
-        }
-
-        public static double operator ^(Vector a, Vector b)
-        {
-            return a.X * b.Y - a.Y * b.X;
-        }
-
         public static Vector operator +(Vector a, Vector b)
         {
             return new Vector(a.X + b.X, a.Y + b.Y);
-        }
-
-        public Vector Normalize()
-        {
-            return Length > 0 ? this * (1 / Length) : this;
-        }
-
-        public Vector Rotate(double angle)
-        {
-            return new Vector(X * Math.Cos(angle) - Y * Math.Sin(angle), X * Math.Sin(angle) + Y * Math.Cos(angle));
         }
 
         public Point ToDrawingPoint()
@@ -101,14 +71,12 @@ namespace TagsCloudVisualization
             return new Point((int)X, (int)Y);
         }
 
-        public PointF ToDrawingPointF()
+        public static Vector FromPolar(double radius, double angle)
         {
-            return new PointF((float) X, (float) Y);
-        }
-
-        public double GetAngle(Vector vector)
-        {
-            return Math.Abs(Angle - vector.Angle);
+            return new Vector(
+                radius * Math.Cos(angle),
+                radius * Math.Sin(angle)
+            );
         }
     }
 }
