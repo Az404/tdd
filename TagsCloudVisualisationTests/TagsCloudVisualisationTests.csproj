@@ -62,6 +62,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="CircularCloudLayouter_Should.cs" />
+    <Compile Include="CloudVisualizer_Should.cs" />
     <Compile Include="Geometry\Point_Should.cs" />
     <Compile Include="Geometry\Rectangle_Should.cs" />
     <Compile Include="Geometry\Vector_Should.cs" />

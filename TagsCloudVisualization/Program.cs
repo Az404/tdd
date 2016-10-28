@@ -61,32 +61,24 @@ namespace TagsCloudVisualization
                 return;
             }
 
-            Visualise(commandLineParser.Object);
+            Visualize(commandLineParser.Object);
         }
 
-        private static void Visualise(VisualiserOptions options)
+        private static void Visualize(VisualiserOptions options)
         {
             var words = File.ReadAllLines(options.TagsFileName);
-            var tags = PutWords(words);
-            var rectangles = tags.Select(tag => tag.Rectangle).ToArray();
-            using (var visualizer = new CloudVizualizer(Width, Height))
-            {
-                visualizer.DrawRectangles(rectangles, Color.GreenYellow);
-                visualizer.DrawTags(tags, Color.Green);
-                visualizer.Save(options.ImageFileName);
-            }
-        }
 
-        private static Tag[] PutWords(string[] words)
-        {
             var layouter = new CircularCloudLayouter(Center);
-            return words.Select(word =>
+            var tags = words.Select(word =>
             {
                 var font = new Font(FontFamily.GenericSansSerif, Random.Next(MinFontSize, MaxFontSize));
                 var size = TextRenderer.MeasureText(word, font);
                 var rect = layouter.PutNextRectangle(size);
                 return new Tag(rect, word, font);
             }).ToArray();
+
+            using (var bitmap = CloudVizualizer.DrawTags(new Size(Width, Height), tags, Color.Green))
+                bitmap.Save(options.ImageFileName);
         }
     }
 }

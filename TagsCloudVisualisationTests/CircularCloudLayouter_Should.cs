@@ -95,11 +95,11 @@ namespace TagsCloudVisualisationTests
                 var filename =
                     $"{TestContext.CurrentContext.TestDirectory}\\{TestContext.CurrentContext.Test.FullName}.png";
                 var rectangles = layouter.Rectangles.ToArray();
-                using (var visualizer = new CloudVizualizer(rectangles))
-                {
-                    visualizer.DrawRectangles(rectangles, Color.Red);
-                    visualizer.Save(filename);
-                }
+                var size = CloudVizualizer.CalcCloudSize(rectangles);
+                var offset = new Size(size.Width / 2, size.Height / 2);
+                var shiftedRectangles = rectangles.Select(rect => rect.Shift(offset)).ToArray();
+                using (var bitmap = CloudVizualizer.DrawRectangles(size, shiftedRectangles, Color.Red))
+                    bitmap.Save(filename);
                 TestContext.WriteLine($"Tag cloud visualization saved to file {filename}");
             }
         }

@@ -22,7 +22,7 @@ namespace TagsCloudVisualization.Geometry
             return rect.Location + new Size(rect.Width / 2, rect.Height / 2);
         }
 
-        public static bool HasIntersections(this IEnumerable<Rectangle> rectangles, Rectangle target)
+        public static bool HasIntersectionsWith(this Rectangle target, IEnumerable<Rectangle> rectangles)
         {
             return rectangles.Any(target.IntersectsWith);
         }
@@ -30,11 +30,6 @@ namespace TagsCloudVisualization.Geometry
         public static Rectangle Shift(this Rectangle rectangle, Size offset)
         {
             return new Rectangle(rectangle.Location + offset, rectangle.Size);
-        }
-
-        public static Rectangle CreateRectangle(Point rectCenter, Size rectSize)
-        {
-            return new Rectangle(rectCenter - new Size(rectSize.Width / 2, rectSize.Height / 2), rectSize);
         }
     }
 }

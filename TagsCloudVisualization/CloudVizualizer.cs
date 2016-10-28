@@ -1,68 +1,51 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Linq;
-using TagsCloudVisualization.Geometry;
 
 namespace TagsCloudVisualization
 {
-    public class CloudVizualizer: IDisposable
+    public class CloudVizualizer
     {
         private const int BorderSize = 10;
 
-        private Bitmap bitmap;
-        private readonly Size offset = new Size(0, 0);
-
-        private void Initialize(int width, int height)
+        public static Size CalcCloudSize(IEnumerable<Rectangle> rectangles)
         {
-            bitmap = new Bitmap(width, height);
+            var enumerable = rectangles as Rectangle[] ?? rectangles.ToArray();
+            if (enumerable.Length == 0)
+                return new Size(0, 0);
+            var width = enumerable.Max(rect => rect.Right) - enumerable.Min(rect => rect.X);
+            var height = enumerable.Max(rect => rect.Bottom) - enumerable.Min(rect => rect.Y);
+            return new Size(width, height);
         }
+        
 
-        public CloudVizualizer(int width, int height)
+        public static Bitmap DrawRectangles(Size size, IEnumerable<Rectangle> rectangles, Color color)
         {
-            Initialize(width, height);
-        }
-
-        public CloudVizualizer(Rectangle[] rectangles)
-        {
-            var width = rectangles.Max(rect => rect.Right) - rectangles.Min(rect => rect.X) + BorderSize;
-            var height = rectangles.Max(rect => rect.Bottom) - rectangles.Min(rect => rect.Y) + BorderSize;
-            offset = new Size(width / 2, height / 2);
-            Initialize(width, height);
-        }
-
-        public void DrawRectangles(Rectangle[] rectangles, Color color)
-        {
+            var bitmap = new Bitmap(size.Width, size.Height);
             using (var graphics = Graphics.FromImage(bitmap))
             {
                 foreach (var rectangle in rectangles)
-                    graphics.DrawRectangle(new Pen(color), rectangle.Shift(offset));
+                    graphics.DrawRectangle(new Pen(color), rectangle);
             }
+            return bitmap;
         }
 
-        public void DrawTags(Tag[] tags, Color color)
+        public static Bitmap DrawTags(Size size, IEnumerable<Tag> tags, Color color)
         {
+            var bitmap = new Bitmap(size.Width, size.Height);
             using (var graphics = Graphics.FromImage(bitmap))
             {
-                graphics.TextRenderingHint = TextRenderingHint.AntiAlias;;
+                graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
                 foreach (var tag in tags)
                 {
-                    var rect = tag.Rectangle.Shift(offset);
-                    rect.Size += new Size(BorderSize, BorderSize);
-                    graphics.DrawString(tag.Word, tag.Font, new SolidBrush(color), rect);
+                    graphics.DrawRectangle(new Pen(color), tag.Rectangle);
+                    var boundingRect = new Rectangle(tag.Rectangle.Location,
+                        tag.Rectangle.Size + new Size(BorderSize, BorderSize));
+                    graphics.DrawString(tag.Word, tag.Font, new SolidBrush(color), boundingRect);
                 }
             }
-        }
-
-        public void Save(string fileName)
-        {
-            bitmap.Save(fileName);
-        }
-
-        public void Dispose()
-        {
-            bitmap.Dispose();
+            return bitmap;
         }
     }
 }

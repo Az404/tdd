@@ -27,7 +27,7 @@ namespace TagsCloudVisualization
             for (var angle = 0.0; angle < 2*Math.PI; angle += AngleStep)
             {
                 var rectCenter = Vector.FromPolar(GetPossibleRadius(rectangleSize), angle) + center.ToVector();
-                var rect = RectangleExtensions.CreateRectangle(rectCenter.ToDrawingPoint(), rectangleSize);
+                var rect = CreateRectangle(rectCenter.ToDrawingPoint(), rectangleSize);
                 candidates.Add(PushToCloud(rect));
             }
             var result = candidates.OrderBy(rect => rect.GetCenter().DistanceTo(center)).First();
@@ -42,6 +42,11 @@ namespace TagsCloudVisualization
             return rectangles.Max(rect => rect.MaxDistance(center)) + Math.Max(rectangleSize.Height, rectangleSize.Width);
         }
 
+        private static Rectangle CreateRectangle(Point rectCenter, Size rectSize)
+        {
+            return new Rectangle(rectCenter - new Size(rectSize.Width / 2, rectSize.Height / 2), rectSize);
+        }
+
         private Rectangle PushToCloud(Rectangle target)
         {
             var centerVector = center.ToVector();
@@ -50,14 +55,14 @@ namespace TagsCloudVisualization
             while ((maxRadiusVector - minRadiusVector).Length > CompactionTolerance)
             {
                 var radiusVector = (maxRadiusVector + minRadiusVector) * 0.5;
-                var rect = RectangleExtensions.CreateRectangle((centerVector + radiusVector).ToDrawingPoint(), target.Size);
+                var rect = CreateRectangle((centerVector + radiusVector).ToDrawingPoint(), target.Size);
 
-                if (rectangles.HasIntersections(rect))
+                if (rect.HasIntersectionsWith(rectangles))
                     minRadiusVector = radiusVector;
                 else
                     maxRadiusVector = radiusVector;
             }
-            return RectangleExtensions.CreateRectangle((centerVector + maxRadiusVector).ToDrawingPoint(), target.Size);
+            return CreateRectangle((centerVector + maxRadiusVector).ToDrawingPoint(), target.Size);
         }
     }
 }
