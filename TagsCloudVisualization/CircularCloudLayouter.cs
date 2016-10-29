@@ -28,7 +28,7 @@ namespace TagsCloudVisualization
             {
                 var rectCenter = Vector.FromPolar(GetPossibleRadius(rectangleSize), angle) + center.ToVector();
                 var rect = CreateRectangle(rectCenter.ToDrawingPoint(), rectangleSize);
-                candidates.Add(PushToCloud(rect));
+                candidates.Add(ShiftCloserToCloud(rect));
             }
             var result = candidates.OrderBy(rect => rect.GetCenter().DistanceTo(center)).First();
             rectangles.Add(result);
@@ -47,7 +47,7 @@ namespace TagsCloudVisualization
             return new Rectangle(rectCenter - new Size(rectSize.Width / 2, rectSize.Height / 2), rectSize);
         }
 
-        private Rectangle PushToCloud(Rectangle target)
+        private Rectangle ShiftCloserToCloud(Rectangle target)
         {
             var centerVector = center.ToVector();
             var maxRadiusVector = target.GetCenter().ToVector() - centerVector;
