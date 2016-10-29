@@ -6,8 +6,8 @@
     <ProjectGuid>{24FC20EB-092D-41D3-A8C6-F5F23DE76CBB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TagsCloudVisualisationTests</RootNamespace>
-    <AssemblyName>TagsCloudVisualisationTests</AssemblyName>
+    <RootNamespace>TagsCloudVisualizationTests</RootNamespace>
+    <AssemblyName>TagsCloudVisualizationTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -62,7 +62,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="CircularCloudLayouter_Should.cs" />
-    <Compile Include="CloudVisualizer_Should.cs" />
     <Compile Include="Geometry\Point_Should.cs" />
     <Compile Include="Geometry\Rectangle_Should.cs" />
     <Compile Include="Geometry\Vector_Should.cs" />

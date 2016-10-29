@@ -2,7 +2,6 @@
 
 namespace TagsCloudVisualization.Geometry
 {
-
     public static class PointExtensions
     {
         public static Vector ToVector(this Point point)
@@ -15,5 +14,4 @@ namespace TagsCloudVisualization.Geometry
             return (new Vector(from) - new Vector(to)).Length;
         }
     }
-
 }

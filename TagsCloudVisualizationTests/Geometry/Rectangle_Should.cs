@@ -3,10 +3,10 @@ using FluentAssertions;
 using NUnit.Framework;
 using TagsCloudVisualization.Geometry;
 
-namespace TagsCloudVisualisationTests.Geometry
+namespace TagsCloudVisualizationTests.Geometry
 {
     [TestFixture]
-    class Rectangle_Should
+    internal class Rectangle_Should
     {
         [Test]
         public void ReturnCorrectMaxDistance()
@@ -39,9 +39,25 @@ namespace TagsCloudVisualisationTests.Geometry
             });
         }
 
+        [Test]
         public void NotIntersects_WhenEmptyCollection()
         {
-            new Rectangle(new Point(1, 2), new Size(3, 4)).HasIntersectionsWith(new Rectangle[] { }).Should().BeFalse();
+            new Rectangle(new Point(1, 2), new Size(3, 4)).HasIntersectionsWith(new Rectangle[] {}).Should().BeFalse();
+        }
+
+        [Test]
+        public void ReturnBoundingRectangleSize_Correctly_WhenOrdinaryRectangles()
+        {
+            new[]
+            {
+                new Rectangle(0, 0, 5, 25), new Rectangle(-5, -10, 15, 20)
+            }.GetBoundingRectangleSize().Should().Be(new Size(15, 35));
+        }
+
+        [Test]
+        public void ReturnBoundingRectangleSize_Correctly_WhenEmptyCollection()
+        {
+            new Rectangle[] {}.GetBoundingRectangleSize().Should().Be(new Size(0, 0));
         }
     }
 }

@@ -3,10 +3,10 @@ using FluentAssertions;
 using NUnit.Framework;
 using TagsCloudVisualization.Geometry;
 
-namespace TagsCloudVisualisationTests.Geometry
+namespace TagsCloudVisualizationTests.Geometry
 {
     [TestFixture]
-    class Point_Should
+    internal class Point_Should
     {
         [Test]
         public void CalcDistanceToOtherPoint_Correctly()

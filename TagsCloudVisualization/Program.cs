@@ -7,25 +7,19 @@ using Fclp;
 
 namespace TagsCloudVisualization
 {
-    class Program
+    internal class Program
     {
         private const int MinFontSize = 14;
         private const int MaxFontSize = 28;
         private const int Width = 2000;
         private const int Height = 1000;
-        private static readonly Point Center = new Point(Width / 2, Height / 2);
 
+        private static readonly Point Center = new Point(Width/2, Height/2);
         private static readonly Random Random = new Random(0);
 
-        private class VisualiserOptions
+        private static void Main(string[] args)
         {
-            public string TagsFileName { get; set; }
-            public string ImageFileName { get; set; }
-        }
-
-        static void Main(string[] args)
-        {
-            var commandLineParser = new FluentCommandLineParser<VisualiserOptions>();
+            var commandLineParser = new FluentCommandLineParser<VisualizerOptions>();
 
             commandLineParser
                 .Setup(options => options.TagsFileName)
@@ -54,7 +48,7 @@ namespace TagsCloudVisualization
                 Console.WriteLine(usage);
                 return;
             }
-            
+
             if (!File.Exists(commandLineParser.Object.TagsFileName))
             {
                 Console.WriteLine("File not found");
@@ -64,7 +58,7 @@ namespace TagsCloudVisualization
             Visualize(commandLineParser.Object);
         }
 
-        private static void Visualize(VisualiserOptions options)
+        private static void Visualize(VisualizerOptions options)
         {
             var words = File.ReadAllLines(options.TagsFileName);
 
@@ -75,10 +69,18 @@ namespace TagsCloudVisualization
                 var size = TextRenderer.MeasureText(word, font);
                 var rect = layouter.PutNextRectangle(size);
                 return new Tag(rect, word, font);
-            }).ToArray();
+            });
 
-            using (var bitmap = CloudVizualizer.DrawTags(new Size(Width, Height), tags, Color.Green))
+            using (var bitmap = CloudVizualizer.DrawTags(tags, new Size(Width, Height), Color.Green))
+            {
                 bitmap.Save(options.ImageFileName);
+            }
+        }
+
+        private class VisualizerOptions
+        {
+            public string TagsFileName { get; set; }
+            public string ImageFileName { get; set; }
         }
     }
 }

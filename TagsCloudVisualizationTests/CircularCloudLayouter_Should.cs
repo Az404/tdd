@@ -8,10 +8,10 @@ using NUnit.Framework.Interfaces;
 using TagsCloudVisualization;
 using TagsCloudVisualization.Geometry;
 
-namespace TagsCloudVisualisationTests
+namespace TagsCloudVisualizationTests
 {
     [TestFixture]
-    public class CircularCloudLayouter_Should
+    internal class CircularCloudLayouter_Should
     {
         private CircularCloudLayouter layouter;
         private Point center;
@@ -21,6 +21,23 @@ namespace TagsCloudVisualisationTests
         {
             center = new Point(0, 0);
             layouter = new CircularCloudLayouter(center);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (TestContext.CurrentContext.Result.Outcome.Status == TestStatus.Failed)
+            {
+                var filename =
+                    $"{TestContext.CurrentContext.TestDirectory}\\{TestContext.CurrentContext.Test.FullName}.png";
+                var rectangles = layouter.Rectangles.ToArray();
+                var size = rectangles.GetBoundingRectangleSize();
+                var offset = new Size(size.Width / 2, size.Height / 2);
+                var shiftedRectangles = rectangles.Select(rect => rect.Shift(offset)).ToArray();
+                using (var bitmap = CloudVizualizer.DrawRectangles(shiftedRectangles, size, Color.Red))
+                    bitmap.Save(filename);
+                TestContext.WriteLine($"Tag cloud visualization saved to file {filename}");
+            }
         }
 
         [Test]
@@ -57,7 +74,6 @@ namespace TagsCloudVisualisationTests
             var dRadius = lastRectangles.Max(rect => Math.Abs(sampleRadius - rect.MaxDistance(center)));
             (dRadius / sampleRadius * 100).Should().BeLessThan(10);
         }
-
         
         [TestCase(50)]
         [TestCase(100)]
@@ -86,29 +102,11 @@ namespace TagsCloudVisualisationTests
             distance.Should().BeLessOrEqualTo(maxPossibleDistance);
         }
 
-
-        [TearDown]
-        public void TearDown()
-        {
-            if (TestContext.CurrentContext.Result.Outcome.Status == TestStatus.Failed)
-            {
-                var filename =
-                    $"{TestContext.CurrentContext.TestDirectory}\\{TestContext.CurrentContext.Test.FullName}.png";
-                var rectangles = layouter.Rectangles.ToArray();
-                var size = CloudVizualizer.CalcCloudSize(rectangles);
-                var offset = new Size(size.Width / 2, size.Height / 2);
-                var shiftedRectangles = rectangles.Select(rect => rect.Shift(offset)).ToArray();
-                using (var bitmap = CloudVizualizer.DrawRectangles(size, shiftedRectangles, Color.Red))
-                    bitmap.Save(filename);
-                TestContext.WriteLine($"Tag cloud visualization saved to file {filename}");
-            }
-        }
-
         private void AssertNoIntersections(List<Rectangle> rectangles)
         {
-            for (int i = 0; i < rectangles.Count - 1; i++)
+            for (var i = 0; i < rectangles.Count - 1; i++)
             {
-                for (int j = i + 1; j < rectangles.Count; j++)
+                for (var j = i + 1; j < rectangles.Count; j++)
                 {
                     if (rectangles[i].IntersectsWith(rectangles[j]))
                         Assert.Fail("Rectangles {0} and {1} are intersected", rectangles[i], rectangles[j]);
@@ -120,6 +118,5 @@ namespace TagsCloudVisualisationTests
         {
             return rectangleSizes.Select(size => layouter.PutNextRectangle(size)).ToList();
         }
-
     }
 }

@@ -1,26 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
-using System.Linq;
 
 namespace TagsCloudVisualization
 {
-    public class CloudVizualizer
+    public static class CloudVizualizer
     {
         private const int BorderSize = 10;
 
-        public static Size CalcCloudSize(IEnumerable<Rectangle> rectangles)
-        {
-            var enumerable = rectangles as Rectangle[] ?? rectangles.ToArray();
-            if (enumerable.Length == 0)
-                return new Size(0, 0);
-            var width = enumerable.Max(rect => rect.Right) - enumerable.Min(rect => rect.X);
-            var height = enumerable.Max(rect => rect.Bottom) - enumerable.Min(rect => rect.Y);
-            return new Size(width, height);
-        }
-        
-
-        public static Bitmap DrawRectangles(Size size, IEnumerable<Rectangle> rectangles, Color color)
+        public static Bitmap DrawRectangles(IEnumerable<Rectangle> rectangles, Size size, Color color)
         {
             var bitmap = new Bitmap(size.Width, size.Height);
             using (var graphics = Graphics.FromImage(bitmap))
@@ -31,7 +19,7 @@ namespace TagsCloudVisualization
             return bitmap;
         }
 
-        public static Bitmap DrawTags(Size size, IEnumerable<Tag> tags, Color color)
+        public static Bitmap DrawTags(IEnumerable<Tag> tags, Size size, Color color)
         {
             var bitmap = new Bitmap(size.Width, size.Height);
             using (var graphics = Graphics.FromImage(bitmap))
